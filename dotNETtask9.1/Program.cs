@@ -20,40 +20,52 @@ namespace dotNETtask9._1
 
         private static void AnalyzeFile(string fName)
         {
-            using (StreamReader sr = File.OpenText(fName))
+            using (StreamReader sr = new StreamReader(fName, Encoding.GetEncoding(1251)))
             {
                 string input = sr.ReadLine();
-                int counter = 0;
-                int goodEmailCounter = 0;
-                int goodPhoneCounter = 0;
-                while ((input = sr.ReadLine())!= null)
+                int numberOfPeople = 0;
+                List<string> badPhones = new List<string>();
+                List<string> badEmails = new List<string>();
+                while ((input = sr.ReadLine()) != null)
                 {
-                    counter++;
-                    string[] data = input.Split(',');
-                    string fio = data[0];
-                    string email = data[1].Trim();
-                    string phone = data[2].Trim();
-                    if (AnalyzeEmail(email))
+                    
+                    numberOfPeople++;
+                    string[] data = input.Split('\t');
+                    string fio = data[0].Trim('"');
+                    string email = data[1].Trim('"');
+                    string phone = data[2].Trim('"');
+                    if (!AnalyzeEmail(email))
                     {
-                        goodEmailCounter++;
+                        badEmails.Add(email);
                     }
-                    if (AnalyzePhone(phone))
+                    if (!AnalyzePhone(phone))
                     {
-                        goodPhoneCounter++;
+                        badPhones.Add(phone);
                     }
-                    Console.WriteLine(input);
                 }
 
                 Console.WriteLine();
-                Console.WriteLine($"Общее количество сотрудников: {counter}");
-                Console.WriteLine($"Количество правильных email: {goodEmailCounter}");
-                Console.WriteLine($"Количетсво правильных телефонов {goodPhoneCounter}");
+                Console.WriteLine($"Общее количество сотрудников: {numberOfPeople}");
+                Console.WriteLine($"Количество правильных email: {numberOfPeople - badEmails.Count}");
+                Console.WriteLine($"Количетсво правильных телефонов {numberOfPeople - badPhones.Count}");
+
+                Console.WriteLine("\nНеправильные номера:");
+                foreach(string item in badPhones)
+                {
+                    Console.WriteLine($"\t{item}");
+                }
+
+                Console.WriteLine("\nНеправильные email:");
+                foreach (string item in badEmails)
+                {
+                    Console.WriteLine($"\t{item}");
+                }
             }
         }
 
         private static bool AnalyzePhone(string s)
         {
-            const string pattern = @"\(?\d{3}\)?-? *\d{3}-? *-?\d{4}";
+            const string pattern = @"^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$";
             Regex regex = new Regex(pattern);
             return Regex.IsMatch(s, pattern);
         }
