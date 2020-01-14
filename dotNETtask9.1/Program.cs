@@ -12,7 +12,9 @@ namespace dotNETtask9._1
     {
         static void Main(string[] args)
         {
-            string fileName = args[0];
+            string fileName = "input.csv";
+            if (args.Length == 1)
+                fileName = args[0];
            
             AnalyzeFile(fileName);
             Console.ReadLine();
